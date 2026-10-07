@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devops-springboot-app-config
+  labels:
+    app: devops-springboot-app
+data:
+  application.properties: |
+    spring.application.name=devops-demo
+    server.port=8082
+    management.endpoints.web.exposure.include=health,info,metrics,prometheus
+    management.endpoint.health.show-details=always
+    management.metrics.export.prometheus.enabled=true

@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-springboot-app
+  labels:
+    app: devops-springboot-app
+    version: v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: devops-springboot-app
+  template:
+    metadata:
+      labels:
+        app: devops-springboot-app
+        version: v1
+    spec:
+      containers:
+      - name: devops-springboot-app
+        image: devops-springboot-app:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8082
+          name: http
+          protocol: TCP
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "production"
+        - name: SERVER_PORT
+          value: "8082"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8082
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devops-springboot-app-service
+  labels:
+    app: devops-springboot-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: devops-springboot-app
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8082
+    protocol: TCP
