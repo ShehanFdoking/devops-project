@@ -22,7 +22,7 @@ This project demonstrates a full DevOps workflow including:
 - Prometheus & Grafana monitoring
 - GitOps with Argo CD (optional)
 
-## Current Status: Step 7 - AWS ECR Integration ✅
+## Current Status: Step 8 - Kubernetes Deployment ✅
 
 ### API Endpoints
 
@@ -254,7 +254,7 @@ devops-project/
 - [x] Step 5: GitHub Actions CI
 - [x] Step 6: SonarQube
 - [x] Step 7: AWS ECR
-- [ ] Step 8: Kubernetes locally
+- [x] Step 8: Kubernetes locally
 - [ ] Step 9: AWS EKS
 - [ ] Step 10: Terraform
 - [ ] Step 11: Prometheus + Grafana
@@ -263,7 +263,7 @@ devops-project/
 
 ## Next Steps
 
-Deploy application to Kubernetes (locally with Minikube/Kind, then to AWS EKS).
+Deploy to AWS EKS (managed Kubernetes) for production-grade infrastructure.
 
 ## License
 
