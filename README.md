@@ -22,7 +22,7 @@ This project demonstrates a full DevOps workflow including:
 - Prometheus & Grafana monitoring
 - GitOps with Argo CD (optional)
 
-## Current Status: Step 6 - SonarQube Code Quality ✅
+## Current Status: Step 7 - AWS ECR Integration ✅
 
 ### API Endpoints
 
@@ -114,6 +114,46 @@ docker stop devops-app
 docker rm devops-app
 ```
 
+## AWS ECR (Elastic Container Registry)
+
+Your Docker images are automatically pushed to AWS ECR via GitHub Actions.
+
+### Push to ECR Manually
+
+**Windows PowerShell:**
+```powershell
+.\scripts\push-to-ecr.ps1 -Version "1.0" -Region "us-east-1"
+```
+
+**Linux/Mac:**
+```bash
+chmod +x scripts/push-to-ecr.sh
+./scripts/push-to-ecr.sh 1.0 us-east-1
+```
+
+### Pull from ECR
+
+```bash
+# Login to ECR
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin {account-id}.dkr.ecr.us-east-1.amazonaws.com
+
+# Pull image
+docker pull {account-id}.dkr.ecr.us-east-1.amazonaws.com/devops-springboot-app:latest
+```
+
+### View Images in AWS Console
+
+https://console.aws.amazon.com/ecr/repositories/devops-springboot-app
+
+### Setup ECR Integration
+
+See [AWS_ECR_SETUP.md](AWS_ECR_SETUP.md) for detailed setup instructions:
+1. Create AWS account
+2. Install AWS CLI
+3. Create IAM user with ECR permissions
+4. Create ECR repository
+5. Add AWS credentials to GitHub Secrets
+
 ## CI/CD with GitHub Actions
 
 This project includes automated CI/CD pipelines using GitHub Actions.
@@ -129,13 +169,23 @@ This project includes automated CI/CD pipelines using GitHub Actions.
      - Build Docker image
      - Test Docker image (health checks)
    
-2. **docker-publish.yml** - Docker Image Publishing
+2. **docker-publish.yml** - Docker Hub Publishing
    - Triggers: Push to `main`, Git tags, Manual dispatch
    - Steps:
      - Build application
      - Run tests
      - Build and push Docker image to Docker Hub
      - Tag with version, branch name, and SHA
+
+3. **aws-ecr.yml** - AWS ECR Deployment
+   - Triggers: Push to `main`, Git tags, Manual dispatch
+   - Steps:
+     - Build application with Maven
+     - Configure AWS credentials
+     - Login to Amazon ECR
+     - Build and tag Docker image
+     - Push to ECR with multiple tags
+     - Initiate vulnerability scan
 
 ### Code Quality with SonarCloud
 
@@ -203,7 +253,7 @@ devops-project/
 - [x] Step 4: Docker
 - [x] Step 5: GitHub Actions CI
 - [x] Step 6: SonarQube
-- [ ] Step 7: AWS ECR
+- [x] Step 7: AWS ECR
 - [ ] Step 8: Kubernetes locally
 - [ ] Step 9: AWS EKS
 - [ ] Step 10: Terraform
@@ -213,7 +263,7 @@ devops-project/
 
 ## Next Steps
 
-Push Docker images to AWS Elastic Container Registry (ECR).
+Deploy application to Kubernetes (locally with Minikube/Kind, then to AWS EKS).
 
 ## License
 
