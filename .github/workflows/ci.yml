@@ -7,13 +7,15 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
-    name: Build and Test
+  build-test-sonar:
+    name: Build, Test & Code Quality
     runs-on: ubuntu-latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better SonarCloud analysis
       
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -22,11 +24,24 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
     
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    
     - name: Build with Maven
       run: mvn clean package -DskipTests
       
-    - name: Run tests
-      run: mvn test
+    - name: Run tests with coverage
+      run: mvn test jacoco:report
+      
+    - name: SonarCloud Scan
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn sonar:sonar -Dsonar.projectKey=ShehanFdoking_devops-project -Dsonar.organization=shehanfdoking
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -34,11 +49,18 @@ jobs:
         name: app-jar
         path: target/*.jar
         retention-days: 7
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: target/site/jacoco/
+        retention-days: 7
 
   docker-build:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: build-test-sonar
     
     steps:
     - name: Checkout code

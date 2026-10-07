@@ -1,5 +1,10 @@
 # DevOps Demo Application
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ShehanFdoking_devops-project&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ShehanFdoking_devops-project)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ShehanFdoking_devops-project&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ShehanFdoking_devops-project)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ShehanFdoking_devops-project&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ShehanFdoking_devops-project)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ShehanFdoking_devops-project&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ShehanFdoking_devops-project)
+
 A complete DevOps pipeline project using Spring Boot, Docker, Kubernetes, and CI/CD tools.
 
 ## Project Overview
@@ -17,7 +22,7 @@ This project demonstrates a full DevOps workflow including:
 - Prometheus & Grafana monitoring
 - GitOps with Argo CD (optional)
 
-## Current Status: Step 5 - GitHub Actions CI/CD ✅
+## Current Status: Step 6 - SonarQube Code Quality ✅
 
 ### API Endpoints
 
@@ -115,11 +120,12 @@ This project includes automated CI/CD pipelines using GitHub Actions.
 
 ### Workflows
 
-1. **ci.yml** - Continuous Integration
+1. **ci.yml** - Continuous Integration with Code Quality
    - Triggers: Push to `main`/`develop` branches, Pull Requests to `main`
    - Steps:
      - Build with Maven
-     - Run tests
+     - Run tests with JaCoCo coverage
+     - **SonarCloud code quality analysis**
      - Build Docker image
      - Test Docker image (health checks)
    
@@ -131,33 +137,30 @@ This project includes automated CI/CD pipelines using GitHub Actions.
      - Build and push Docker image to Docker Hub
      - Tag with version, branch name, and SHA
 
+### Code Quality with SonarCloud
+
+Every code push is automatically analyzed for:
+- 🐛 **Bugs**: Potential runtime errors
+- 🔒 **Security Vulnerabilities**: Security hotspots and issues
+- 👃 **Code Smells**: Maintainability issues
+- 📈 **Code Coverage**: Test coverage metrics
+- 📋 **Duplications**: Duplicate code detection
+
+**View Analysis:** https://sonarcloud.io/project/overview?id=ShehanFdoking_devops-project
+
+### Setting Up SonarCloud
+
+See [SONARQUBE_SETUP.md](SONARQUBE_SETUP.md) for detailed instructions.
+
+Quick setup:
+1. Sign up at https://sonarcloud.io with GitHub
+2. Import your repository
+3. Generate token and add as `SONAR_TOKEN` in GitHub Secrets
+4. Push code - analysis runs automatically!
+
 ### Setting Up Docker Hub Integration
 
-To enable automatic Docker image publishing:
-
-1. **Create Docker Hub account** at https://hub.docker.com
-
-2. **Generate Access Token**
-   - Go to Account Settings → Security → New Access Token
-   - Copy the token
-
-3. **Add GitHub Secrets**
-   - Go to your GitHub repository → Settings → Secrets and variables → Actions
-   - Add two secrets:
-     - `DOCKERHUB_USERNAME`: Your Docker Hub username
-     - `DOCKERHUB_TOKEN`: Your Docker Hub access token
-
-4. **Push to main branch** - The workflow will automatically:
-   - Build your application
-   - Run tests
-   - Build Docker image
-   - Push to Docker Hub with multiple tags
-
-### Viewing CI/CD Results
-
-- Go to your GitHub repository
-- Click on "Actions" tab
-- View workflow runs and logs
+See [GITHUB_ACTIONS_SETUP.md](GITHUB_ACTIONS_SETUP.md) for detailed instructions.
 
 ## Running Tests
 
@@ -199,7 +202,7 @@ devops-project/
 - [x] Step 3: Maven
 - [x] Step 4: Docker
 - [x] Step 5: GitHub Actions CI
-- [ ] Step 6: SonarQube
+- [x] Step 6: SonarQube
 - [ ] Step 7: AWS ECR
 - [ ] Step 8: Kubernetes locally
 - [ ] Step 9: AWS EKS
@@ -210,7 +213,7 @@ devops-project/
 
 ## Next Steps
 
-Integrate SonarQube for code quality analysis.
+Push Docker images to AWS Elastic Container Registry (ECR).
 
 ## License
 
