@@ -1,0 +1,54 @@
+# Example Terraform Variables
+# Copy this file to terraform.tfvars and customize for your environment
+
+# AWS Configuration
+aws_region  = "eu-north-1"  # Stockholm region (cheapest in EU)
+environment = "production"
+
+# Project Configuration
+project_name = "devops-springboot"
+cluster_name = "devops-cluster"
+
+# EKS Configuration
+cluster_version = "1.28"
+
+# VPC Configuration
+vpc_cidr            = "10.0.0.0/16"
+enable_nat_gateway  = true
+single_nat_gateway  = true  # Set to false for HA (costs 3x more)
+
+# Node Configuration
+node_instance_type     = "t3.medium"  # 2 vCPU, 4 GB RAM
+node_desired_capacity  = 2
+node_min_size          = 1
+node_max_size          = 4
+node_disk_size         = 20  # GB
+
+# Cost Optimization
+enable_spot_instances = false  # Set to true for 70% cost savings (less reliable)
+
+# ECR Configuration
+ecr_repository_name = "devops-springboot-app"
+
+# Monitoring
+enable_container_insights = true
+
+# Application Configuration
+app_replicas       = 3
+app_cpu_request    = "500m"
+app_memory_request = "512Mi"
+app_cpu_limit      = "1000m"
+app_memory_limit   = "1Gi"
+
+# Auto-scaling
+enable_autoscaling = true
+hpa_min_replicas   = 2
+hpa_max_replicas   = 10
+hpa_cpu_threshold  = 70
+
+# Additional Tags
+tags = {
+  Owner       = "DevOps-Team"
+  CostCenter  = "Engineering"
+  Terraform   = "true"
+}

@@ -22,7 +22,7 @@ This project demonstrates a full DevOps workflow including:
 - Prometheus & Grafana monitoring
 - GitOps with Argo CD (optional)
 
-## Current Status: Step 9 - AWS EKS Ready for Deployment 🚀
+## Current Status: Step 10 - Terraform (Infrastructure as Code) ✅
 
 ### API Endpoints
 
@@ -301,15 +301,79 @@ devops-project/
 - [x] Step 6: SonarQube
 - [x] Step 7: AWS ECR
 - [x] Step 8: Kubernetes locally
-- [ ] Step 9: AWS EKS
-- [ ] Step 10: Terraform
+- [x] Step 9: AWS EKS
+- [x] Step 10: Terraform
 - [ ] Step 11: Prometheus + Grafana
 - [ ] Step 12: Full CI/CD pipeline
 - [ ] Step 13: Optional: Argo CD / GitOps
 
-## Next Steps
+## Terraform (Infrastructure as Code)
 
-Deploy to AWS EKS (managed Kubernetes) for production-grade infrastructure.
+Manage your entire AWS infrastructure with code.
+
+### Quick Start
+
+**Install Terraform:**
+```powershell
+choco install terraform -y
+```
+
+**Initialize:**
+```bash
+cd terraform
+terraform init
+```
+
+**Preview Changes (Free - No AWS Resources Created):**
+```bash
+terraform plan
+```
+
+**Validate Configuration:**
+```bash
+terraform validate
+terraform fmt
+```
+
+### Configuration Files
+
+- `terraform/main.tf` - Main configuration & providers
+- `terraform/variables.tf` - Input variables (customize infrastructure)
+- `terraform/vpc.tf` - VPC & networking setup
+- `terraform/eks.tf` - EKS cluster configuration
+- `terraform/ecr.tf` - Container registry
+- `terraform/outputs.tf` - Output values & useful commands
+
+### What It Creates
+
+When applied, Terraform creates:
+- ✅ VPC with public/private subnets across 3 AZs
+- ✅ EKS cluster (managed Kubernetes)
+- ✅ 2 worker nodes (auto-scaling 1-4)
+- ✅ ECR repository for Docker images
+- ✅ NAT gateways for private subnet internet access
+- ✅ Security groups and IAM roles
+- ✅ CloudWatch logging
+
+### Cost Estimate
+
+- Development: ~$131/month (1 spot instance)
+- Production: ~$187/month (2 on-demand instances)
+
+### Documentation
+
+- Comprehensive guide: [TERRAFORM_GUIDE.md](TERRAFORM_GUIDE.md)
+- Example variables: `terraform/terraform.tfvars.example`
+
+### Key Features
+
+- 📝 **Infrastructure as Code** - Version control your infrastructure
+- 🔄 **Reproducible** - Create identical environments
+- 📊 **Plan Before Apply** - See changes before making them
+- 🔒 **State Management** - Track what exists
+- 🌍 **Multi-Cloud** - Works with AWS, Azure, GCP
+
+**Note:** Running `terraform apply` creates real AWS resources and costs money. Use `terraform plan` to explore without charges!
 
 ## License
 
