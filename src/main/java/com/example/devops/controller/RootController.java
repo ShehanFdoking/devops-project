@@ -10,9 +10,9 @@ import java.util.Map;
 @Controller
 public class RootController {
 
-    @GetMapping("/")
+    @GetMapping("/api/root")
     @ResponseBody
-    public Map<String, Object> root() {
+    public Map<String, Object> apiInfo() {
         Map<String, Object> response = new HashMap<>();
         response.put("application", "DevOps Spring Boot Application");
         response.put("version", "2.0.0");

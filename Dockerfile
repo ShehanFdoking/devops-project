@@ -25,7 +25,7 @@ COPY src ./src
 
 # Copy frontend build into static resources BEFORE Maven build
 RUN mkdir -p src/main/resources/static
-COPY --from=frontend-build /frontend/dist/* ./src/main/resources/static/
+COPY --from=frontend-build /frontend/dist ./src/main/resources/static/
 
 # Build the application
 RUN mvn clean package -DskipTests
