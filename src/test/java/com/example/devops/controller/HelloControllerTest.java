@@ -20,7 +20,9 @@ class HelloControllerTest {
     void testHelloEndpoint() throws Exception {
         mockMvc.perform(get("/api/hello"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Hello from DevOps!"))
-                .andExpect(jsonPath("$.version").value("1.0"));
+                .andExpect(jsonPath("$.message").value("Hello from DevOps CI/CD Pipeline!"))
+                .andExpect(jsonPath("$.version").value("2.0"))
+                .andExpect(jsonPath("$.pipeline").value("Full CI/CD with GitHub Actions"))
+                .andExpect(jsonPath("$.status").value("All 13 steps completed!"));
     }
 }

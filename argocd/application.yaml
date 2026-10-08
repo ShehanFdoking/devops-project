@@ -1,0 +1,56 @@
+# Argo CD Application Definition
+# This tells Argo CD how to deploy your application
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devops-springboot-app
+  namespace: argocd
+  # Add finalizer so ArgoCD will perform cascade delete
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # Project this application belongs to
+  project: default
+  
+  # Source repository information
+  source:
+    repoURL: https://github.com/ShehanFdoking/devops-project.git
+    targetRevision: main
+    path: k8s
+    
+    # Helm chart (if using Helm)
+    # helm:
+    #   valueFiles:
+    #     - values.yaml
+  
+  # Destination cluster and namespace
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  
+  # Sync policy
+  syncPolicy:
+    automated:
+      prune: true      # Delete resources that are no longer in Git
+      selfHeal: true   # Automatically sync when cluster state differs from Git
+      allowEmpty: false
+    
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  
+  # Ignore certain fields in diff
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # Ignore replica count if using HPA

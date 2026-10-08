@@ -1,0 +1,38 @@
+# Argo CD Installation Script
+# This is a reference file for installing Argo CD
+
+# Install Argo CD in Kubernetes cluster:
+# kubectl create namespace argocd
+# kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Access Argo CD UI:
+# kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# Get initial admin password:
+# kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# Login with:
+# Username: admin
+# Password: (from command above)
+
+---
+# Optional: Configure Argo CD for better experience
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Add Git repository
+  repositories: |
+    - url: https://github.com/ShehanFdoking/devops-project.git
+      name: devops-project
+  
+  # Enable admin user
+  admin.enabled: "true"
+  
+  # Timeout settings
+  timeout.reconciliation: 180s

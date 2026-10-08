@@ -14,8 +14,10 @@ public class HelloController {
     @GetMapping("/hello")
     public Map<String, String> hello() {
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Hello from DevOps!");
-        response.put("version", "1.0");
+        response.put("message", "Hello from DevOps CI/CD Pipeline!");
+        response.put("version", "2.0");
+        response.put("pipeline", "Full CI/CD with GitHub Actions");
+        response.put("status", "All 13 steps completed!");
         return response;
     }
 }
