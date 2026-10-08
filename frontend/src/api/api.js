@@ -1,26 +1,44 @@
-const API_BASE_URL = 'http://localhost:8082';
+// Use relative URLs in production, absolute in development
+const API_BASE_URL = import.meta.env.DEV ? 'http://localhost:8082' : '';
+
+const fetchWithErrorHandling = async (url) => {
+    try {
+        console.log(`Fetching: ${API_BASE_URL}${url}`);
+        const response = await fetch(`${API_BASE_URL}${url}`);
+        console.log(`Response status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(`Data received:`, data);
+        return data;
+    } catch (error) {
+        console.error(`Fetch error for ${API_BASE_URL}${url}:`, error);
+        throw error;
+    }
+};
 
 export const api = {
     // Application info
-    getHello: () => fetch(`${API_BASE_URL}/api/hello`).then(r => r.json()),
-    getStatus: () => fetch(`${API_BASE_URL}/api/status`).then(r => r.json()),
+    getHello: () => fetchWithErrorHandling(`/api/hello`),
+    getStatus: () => fetchWithErrorHandling(`/api/status`),
 
     // Health
-    getHealth: () => fetch(`${API_BASE_URL}/actuator/health`).then(r => r.json()),
+    getHealth: () => fetchWithErrorHandling(`/actuator/health`),
 
     // Metrics
-    getMetrics: () => fetch(`${API_BASE_URL}/api/metrics`).then(r => r.json()),
+    getMetrics: () => fetchWithErrorHandling(`/api/metrics`),
 
     // Deployments
-    getDeployments: () => fetch(`${API_BASE_URL}/api/deployments`).then(r => r.json()),
-    getLatestDeployment: () => fetch(`${API_BASE_URL}/api/deployments/latest`).then(r => r.json()),
+    getDeployments: () => fetchWithErrorHandling(`/api/deployments`),
+    getLatestDeployment: () => fetchWithErrorHandling(`/api/deployments/latest`),
 
     // Services
-    getServices: () => fetch(`${API_BASE_URL}/api/services`).then(r => r.json()),
-    getServicesStatus: () => fetch(`${API_BASE_URL}/api/services/status`).then(r => r.json()),
+    getServices: () => fetchWithErrorHandling(`/api/services`),
+    getServicesStatus: () => fetchWithErrorHandling(`/api/services/status`),
 
     // API Info
-    getApiEndpoints: () => fetch(`${API_BASE_URL}/api/info/endpoints`).then(r => r.json()),
-    getVersion: () => fetch(`${API_BASE_URL}/api/info/version`).then(r => r.json()),
-    getEnvironment: () => fetch(`${API_BASE_URL}/api/info/environment`).then(r => r.json()),
+    getApiEndpoints: () => fetchWithErrorHandling(`/api/info/endpoints`),
+    getVersion: () => fetchWithErrorHandling(`/api/info/version`),
+    getEnvironment: () => fetchWithErrorHandling(`/api/info/environment`),
 };
