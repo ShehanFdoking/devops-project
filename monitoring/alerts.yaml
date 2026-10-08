@@ -1,0 +1,96 @@
+# PrometheusRule - Custom Alerts for Spring Boot Application
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: devops-springboot-app-alerts
+  labels:
+    app: devops-springboot-app
+    release: prometheus
+spec:
+  groups:
+    - name: application.rules
+      interval: 30s
+      rules:
+        # High CPU usage
+        - alert: HighCPUUsage
+          expr: |
+            rate(process_cpu_usage[5m]) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+            app: devops-springboot-app
+          annotations:
+            summary: "High CPU usage detected"
+            description: "CPU usage is above 80% for {{ $labels.pod }}"
+        
+        # High memory usage
+        - alert: HighMemoryUsage
+          expr: |
+            jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"} > 0.9
+          for: 5m
+          labels:
+            severity: warning
+            app: devops-springboot-app
+          annotations:
+            summary: "High memory usage detected"
+            description: "Memory usage is above 90% for {{ $labels.pod }}"
+        
+        # Application down
+        - alert: ApplicationDown
+          expr: |
+            up{job="spring-boot-app"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            app: devops-springboot-app
+          annotations:
+            summary: "Application is down"
+            description: "Spring Boot application {{ $labels.pod }} is not responding"
+        
+        # High error rate
+        - alert: HighErrorRate
+          expr: |
+            rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+            app: devops-springboot-app
+          annotations:
+            summary: "High error rate detected"
+            description: "Error rate is above 10% for {{ $labels.pod }}"
+        
+        # Slow response time
+        - alert: SlowResponseTime
+          expr: |
+            histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m])) > 1
+          for: 10m
+          labels:
+            severity: warning
+            app: devops-springboot-app
+          annotations:
+            summary: "Slow response time detected"
+            description: "95th percentile response time is above 1s for {{ $labels.pod }}"
+        
+        # Pod restart
+        - alert: PodRestarting
+          expr: |
+            rate(kube_pod_container_status_restarts_total{pod=~"devops-springboot-app.*"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+            app: devops-springboot-app
+          annotations:
+            summary: "Pod is restarting"
+            description: "Pod {{ $labels.pod }} is restarting frequently"
+        
+        # Low disk space
+        - alert: LowDiskSpace
+          expr: |
+            (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Low disk space"
+            description: "Less than 10% disk space available on {{ $labels.instance }}"

@@ -22,7 +22,7 @@ This project demonstrates a full DevOps workflow including:
 - Prometheus & Grafana monitoring
 - GitOps with Argo CD (optional)
 
-## Current Status: Step 10 - Terraform (Infrastructure as Code) ✅
+## Current Status: Step 11 - Prometheus + Grafana Monitoring ✅
 
 ### API Endpoints
 
@@ -303,9 +303,63 @@ devops-project/
 - [x] Step 8: Kubernetes locally
 - [x] Step 9: AWS EKS
 - [x] Step 10: Terraform
-- [ ] Step 11: Prometheus + Grafana
+- [x] Step 11: Prometheus + Grafana
 - [ ] Step 12: Full CI/CD pipeline
 - [ ] Step 13: Optional: Argo CD / GitOps
+
+## Monitoring (Prometheus + Grafana)
+
+Complete observability for your application with metrics, dashboards, and alerts.
+
+### Quick Start
+
+**Install monitoring stack:**
+```powershell
+.\scripts\setup-monitoring.ps1
+```
+
+**Access Grafana:**
+```bash
+# Port forward
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+
+# Open browser: http://localhost:3000
+# Username: admin
+# Password: admin123
+```
+
+### Features
+
+- ✅ Prometheus metrics collection
+- ✅ Grafana dashboards (4 pre-configured)
+- ✅ Spring Boot metrics (HTTP, JVM, Tomcat)
+- ✅ Kubernetes cluster metrics
+- ✅ Custom alerts (7 configured)
+- ✅ Real-time monitoring
+
+### Pre-configured Dashboards
+
+1. **Spring Boot 2.x** - Application metrics
+2. **JVM Micrometer** - Java internals
+3. **Kubernetes Cluster** - Cluster health
+4. **Node Exporter** - Infrastructure metrics
+
+### Metrics Exposed
+
+- HTTP request rate & response time
+- JVM memory & garbage collection
+- CPU & thread usage
+- Error rates & status codes
+- Pod health & restarts
+- Resource utilization
+
+### Documentation
+
+- Comprehensive guide: [MONITORING_GUIDE.md](MONITORING_GUIDE.md)
+- Configuration: `monitoring/prometheus/values.yaml`
+- Alerts: `monitoring/alerts.yaml`
+
+**Test it:** Generate traffic and see real-time metrics in Grafana!
 
 ## Terraform (Infrastructure as Code)
 

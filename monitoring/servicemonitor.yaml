@@ -1,0 +1,19 @@
+# ServiceMonitor for Spring Boot Application
+# This tells Prometheus to scrape metrics from our app
+
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: devops-springboot-app-monitor
+  labels:
+    app: devops-springboot-app
+    release: prometheus  # Must match Prometheus release name
+spec:
+  selector:
+    matchLabels:
+      app: devops-springboot-app
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+      scrapeTimeout: 10s

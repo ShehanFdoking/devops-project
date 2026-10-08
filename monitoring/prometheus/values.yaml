@@ -1,0 +1,195 @@
+# Prometheus Configuration for Kubernetes
+# Install with: helm install prometheus prometheus-community/kube-prometheus-stack -f monitoring/prometheus/values.yaml
+
+# Global Prometheus settings
+prometheus:
+  prometheusSpec:
+    # Retention period for metrics
+    retention: 7d
+    retentionSize: "10GB"
+    
+    # Resources
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+    
+    # Storage
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    
+    # Service monitors - what to scrape
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    
+    # Additional scrape configs for Spring Boot
+    additionalScrapeConfigs:
+      - job_name: 'spring-boot-app'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - default
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            action: keep
+            regex: devops-springboot-app
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: true
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: kubernetes_namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: kubernetes_pod_name
+
+# Grafana Configuration
+grafana:
+  enabled: true
+  
+  adminPassword: "admin123"  # Change this in production!
+  
+  # Resources
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  # Persistence
+  persistence:
+    enabled: true
+    size: 5Gi
+  
+  # Service type
+  service:
+    type: LoadBalancer  # Use NodePort for local K8s
+  
+  # Datasources
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: http://prometheus-kube-prometheus-prometheus:9090
+          access: proxy
+          isDefault: true
+  
+  # Default dashboards
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: 'default'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  
+  # Custom dashboards
+  dashboards:
+    default:
+      # Spring Boot dashboard
+      spring-boot:
+        gnetId: 12900  # Spring Boot 2.x dashboard from Grafana.com
+        revision: 1
+        datasource: Prometheus
+      
+      # JVM dashboard
+      jvm-micrometer:
+        gnetId: 4701  # JVM Micrometer dashboard
+        revision: 7
+        datasource: Prometheus
+      
+      # Kubernetes cluster monitoring
+      kubernetes-cluster:
+        gnetId: 7249  # Kubernetes Cluster Monitoring
+        revision: 1
+        datasource: Prometheus
+      
+      # Node exporter
+      node-exporter:
+        gnetId: 1860  # Node Exporter Full
+        revision: 27
+        datasource: Prometheus
+
+# Alertmanager Configuration
+alertmanager:
+  enabled: true
+  
+  config:
+    global:
+      resolve_timeout: 5m
+    
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default'
+      routes:
+        - match:
+            alertname: Watchdog
+          receiver: 'null'
+        - match:
+            severity: critical
+          receiver: 'critical'
+    
+    receivers:
+      - name: 'null'
+      - name: 'default'
+        # Add your notification config here
+        # webhook_configs:
+        #   - url: 'http://your-webhook-url'
+      - name: 'critical'
+        # Slack, PagerDuty, Email, etc.
+        # slack_configs:
+        #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        #     channel: '#alerts'
+
+# Node Exporter (collect node metrics)
+nodeExporter:
+  enabled: true
+
+# Kube State Metrics
+kubeStateMetrics:
+  enabled: true
+
+# Disable components not needed for basic setup
+kubeControllerManager:
+  enabled: false
+
+kubeScheduler:
+  enabled: false
+
+kubeEtcd:
+  enabled: false
+
+kubeProxy:
+  enabled: false

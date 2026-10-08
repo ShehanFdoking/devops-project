@@ -15,6 +15,10 @@ spec:
       labels:
         app: devops-springboot-app
         version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8082"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       containers:
       - name: devops-springboot-app
