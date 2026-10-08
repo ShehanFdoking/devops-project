@@ -22,7 +22,7 @@ This project demonstrates a full DevOps workflow including:
 - Prometheus & Grafana monitoring
 - GitOps with Argo CD (optional)
 
-## Current Status: Step 8 - Kubernetes Deployment ✅
+## Current Status: Step 9 - AWS EKS Ready for Deployment 🚀
 
 ### API Endpoints
 
@@ -122,23 +122,23 @@ Your Docker images are automatically pushed to AWS ECR via GitHub Actions.
 
 **Windows PowerShell:**
 ```powershell
-.\scripts\push-to-ecr.ps1 -Version "1.0" -Region "us-east-1"
+.\scripts\push-to-ecr.ps1 -Version "1.0" -Region "eu-north-1"
 ```
 
 **Linux/Mac:**
 ```bash
 chmod +x scripts/push-to-ecr.sh
-./scripts/push-to-ecr.sh 1.0 us-east-1
+./scripts/push-to-ecr.sh 1.0 eu-north-1
 ```
 
 ### Pull from ECR
 
 ```bash
 # Login to ECR
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin {account-id}.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 852093845150.dkr.ecr.eu-north-1.amazonaws.com
 
 # Pull image
-docker pull {account-id}.dkr.ecr.us-east-1.amazonaws.com/devops-springboot-app:latest
+docker pull 852093845150.dkr.ecr.eu-north-1.amazonaws.com/devops-springboot-app:latest
 ```
 
 ### View Images in AWS Console
@@ -147,12 +147,58 @@ https://console.aws.amazon.com/ecr/repositories/devops-springboot-app
 
 ### Setup ECR Integration
 
-See [AWS_ECR_SETUP.md](AWS_ECR_SETUP.md) for detailed setup instructions:
-1. Create AWS account
-2. Install AWS CLI
-3. Create IAM user with ECR permissions
-4. Create ECR repository
-5. Add AWS credentials to GitHub Secrets
+See [AWS_ECR_SETUP.md](AWS_ECR_SETUP.md) for detailed setup instructions.
+
+## AWS EKS (Elastic Kubernetes Service)
+
+Deploy your application to production-grade managed Kubernetes on AWS.
+
+### Quick Start
+
+**Prerequisites:**
+```powershell
+# Install eksctl
+choco install eksctl -y
+```
+
+**Create EKS Cluster:**
+```bash
+eksctl create cluster -f k8s/eks/cluster-config.yaml
+```
+
+**Deploy Application:**
+```powershell
+.\scripts\deploy-to-eks.ps1
+```
+
+### Configuration Files
+
+- `k8s/eks/cluster-config.yaml` - EKS cluster configuration
+- `k8s/eks/deployment.yaml` - Production Kubernetes manifests
+- `scripts/deploy-to-eks.ps1` - Automated deployment script
+
+### Setup Guides
+
+- Comprehensive: [AWS_EKS_SETUP.md](AWS_EKS_SETUP.md)
+- Quick start: [.eks-quickstart.md](.eks-quickstart.md)
+
+### Features
+
+- ✅ Managed Kubernetes control plane
+- ✅ Auto-scaling worker nodes (1-4 nodes)
+- ✅ AWS Load Balancer integration
+- ✅ CloudWatch monitoring & logging
+- ✅ High availability across AZs
+- ✅ Production-ready security
+
+### Cost Estimate
+
+- Control plane: ~$73/month
+- 2x t3.medium nodes: ~$66/month
+- Load Balancer: ~$16/month
+- **Total: ~$155/month**
+
+Use Spot instances for 70% cost savings!
 
 ## CI/CD with GitHub Actions
 

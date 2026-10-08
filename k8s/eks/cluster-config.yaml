@@ -1,0 +1,115 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: devops-cluster
+  region: eu-north-1
+  version: "1.28"
+  tags:
+    Environment: Production
+    Project: DevOps-Demo
+    ManagedBy: eksctl
+
+# VPC Configuration
+vpc:
+  cidr: 192.168.0.0/16
+  nat:
+    gateway: Single  # Use 'HighlyAvailable' for production (costs more)
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+# IAM Configuration
+iam:
+  withOIDC: true
+  serviceRoleARN: null  # Let eksctl create
+
+# Managed Node Groups
+managedNodeGroups:
+  - name: devops-nodes-primary
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    volumeSize: 20
+    volumeType: gp3
+    amiFamily: AmazonLinux2
+    ssh:
+      allow: false  # Set to true and add publicKeyName for SSH access
+    labels:
+      role: worker
+      environment: production
+      nodegroup-type: primary
+    tags:
+      Name: devops-cluster-worker
+      Environment: Production
+      k8s.io/cluster-autoscaler/devops-cluster: "owned"
+      k8s.io/cluster-autoscaler/enabled: "true"
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        appMesh: false
+        ebs: true
+        fsx: false
+        efs: true
+        albIngress: true
+        xRay: false
+        cloudWatch: true
+
+  # Optional: Spot Instance Node Group for Cost Savings
+  # - name: devops-nodes-spot
+  #   instanceTypes: ["t3.medium", "t3a.medium", "t2.medium"]
+  #   desiredCapacity: 2
+  #   minSize: 0
+  #   maxSize: 5
+  #   volumeSize: 20
+  #   spot: true
+  #   labels:
+  #     role: worker
+  #     environment: production
+  #     nodegroup-type: spot
+  #   taints:
+  #     - key: spotInstance
+  #       value: "true"
+  #       effect: NoSchedule
+  #   tags:
+  #     Name: devops-cluster-spot-worker
+  #     k8s.io/cluster-autoscaler/devops-cluster: "owned"
+  #     k8s.io/cluster-autoscaler/enabled: "true"
+
+# Add-ons
+addons:
+  - name: vpc-cni
+    version: latest
+    attachPolicyARNs:
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  - name: coredns
+    version: latest
+  - name: kube-proxy
+    version: latest
+  - name: aws-ebs-csi-driver
+    version: latest
+    wellKnownPolicies:
+      ebsCSIController: true
+
+# CloudWatch Logging
+cloudWatch:
+  clusterLogging:
+    enableTypes:
+      - api
+      - audit
+      - authenticator
+      - controllerManager
+      - scheduler
+    logRetentionInDays: 7
+
+# Fargate Profiles (Optional - for serverless compute)
+# fargateProfiles:
+#   - name: devops-fargate
+#     selectors:
+#       - namespace: fargate
+#     tags:
+#       Environment: Production
