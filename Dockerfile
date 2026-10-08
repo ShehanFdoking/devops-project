@@ -14,37 +14,36 @@ RUN npm run build
 # Stage 2: Build the backend
 FROM maven:3.9-eclipse-temurin-17 AS backend-build
 
-# Set working directory
 WORKDIR /app
 
-# Copy pom.xml and download dependencies (cached layer)
+# Copy pom.xml and download dependencies
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
 
-# Copy frontend build to Spring Boot static resources
-COPY --from=frontend-build /frontend/dist ./src/main/resources/static
+# Copy frontend build into static resources BEFORE Maven build
+RUN mkdir -p src/main/resources/static
+COPY --from=frontend-build /frontend/dist/* ./src/main/resources/static/
 
-# Build the application (skip tests for faster builds)
+# Build the application
 RUN mvn clean package -DskipTests
 
 # Stage 3: Run the application
 FROM eclipse-temurin:17-jre-alpine
 
-# Set working directory
 WORKDIR /app
 
 # Copy the JAR file from build stage
 COPY --from=backend-build /app/target/*.jar app.jar
 
-# Expose port 8082
+# Expose port
 EXPOSE 8082
 
-# Add health check
+# Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1
 
-# Run the application
+# Run
 ENTRYPOINT ["java", "-jar", "app.jar"]
